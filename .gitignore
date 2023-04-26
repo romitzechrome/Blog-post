@@ -1,0 +1,10 @@
+env
+*/__pycache__
+*/*/__pycache__
+*/*/*/__pycache__
+*/*/*/*/__pycache__
+*/migrations
+*/*/migrations
+*/*/*/migrations
+/venv
+.env
