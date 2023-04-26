@@ -33,5 +33,6 @@ PORT=5432
 7. run this command on browser
    http://127.0.0.1:8000/
 
-for api refrence import postman collection.
+for api refrence import postman collection in to your postman.
 
+Here I use Token authentication and you got the token into login api and Token in every Api must be required.

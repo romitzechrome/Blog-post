@@ -14,6 +14,20 @@ from rest_framework.permissions import IsAuthenticated
 from .custompermission import *
 from django.db.models import Q
 
+"""
+Note :-
+
+>>>> Only the login register will not require the token, another all APIs must be required token
+
+User can update delete and retrive  only his/her data.
+
+User can retrive  his/her all post and other user's public post.
+
+User can update delete only his/her post.
+
+User can not like private post.
+
+"""
 
 class Register(APIView):
 
@@ -36,7 +50,6 @@ class Register(APIView):
 
 
 class Login(viewsets.ViewSet):
-
     def create(self, request):
         username = request.data.get('username', None)
         password = request.data.get('password', None)
@@ -47,6 +60,7 @@ class Login(viewsets.ViewSet):
         user = authenticate(username=username, password=password)
 
         if user:
+            # create Token in drf
             token, _ = Token.objects.get_or_create(user=user)
             login(request, user)
             json = {
@@ -63,7 +77,7 @@ class UserRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
     serializer_class = UserSerializer
-
+    # update / delete and retrive post
     def get_queryset(self):
         
         return User.objects.filter(id=self.request.user.id)
@@ -75,6 +89,7 @@ class PostListCreateView(generics.ListCreateAPIView):
 
     serializer_class = BlogPostSerializer
 
+    #retrive post list 
     def list(self, request):
         viewAllBlog = BlogPOST.objects.filter(
             Q(owner=self.request.user) | Q(is_public=True))
@@ -99,7 +114,7 @@ class PostRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsOwnerOrReadOnly]
     serializer_class = BlogPostSerializer
-
+    # Below function update and delete and retrive post 
     def get_queryset(self):
         if self.request.method == "GET" :
             return BlogPOST.objects.filter(Q(owner=self.request.user) |Q(is_public=True))
@@ -111,7 +126,7 @@ class LikesListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
 
     serializer_class = LikeBlogPostSerializer
-
+    # retrive like list with post
     def list(self, request):
         likes = Like.objects.filter(user=self.request.user)
         list = []
@@ -135,7 +150,7 @@ class LikeRetrieveUpdateDestroyAPIViewDetailView(generics.RetrieveUpdateDestroyA
 
     def get_object(self):
         return self.request.user
-
+    # like and unlike to post 
     def update(self, request, *args, **kwargs):
         likeid = request.data['post']
         user = self.get_object()
